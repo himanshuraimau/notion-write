@@ -1,0 +1,24 @@
+{
+  "name": "notion-write",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun --env-file=.env run index.ts",
+    "dev": "bun --env-file=.env --watch run index.ts",
+    "mcp-server": "bun --env-file=.env run src/mcp-server.ts",
+    "mcp-dev": "bun --env-file=.env --watch run src/mcp-server.ts",
+    "test-functions": "bun --env-file=.env run examples/demo.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@notionhq/client": "^3.1.3",
+    "zod": "^3.23.8"
+  }
+}
