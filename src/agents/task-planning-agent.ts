@@ -79,7 +79,7 @@ When responding with task breakdowns, use this JSON structure:
         deadline, 
         teamSize = 1, 
         complexity = 'medium',
-        createDatabase = true,
+        shouldCreateDatabase = true,
         parentPageId 
       } = task.parameters;
       
@@ -109,14 +109,50 @@ Create a detailed task breakdown including:
 2. Realistic effort estimates (in hours)
 3. Task priorities and dependencies
 4. Timeline with milestones
-5. Resource requirements
+5. Resource requirements`;
 
-Respond with a valid JSON structure as specified in your instructions.`;
+      const responseSchema = {
+        projectTitle: "string",
+        mainTasks: [
+          {
+            id: "string",
+            title: "string", 
+            description: "string",
+            priority: "Low|Medium|High|Critical",
+            estimatedHours: 0,
+            status: "Not Started",
+            tags: ["string"]
+          }
+        ],
+        timeline: [
+          {
+            taskId: "string",
+            startDate: "ISO date",
+            endDate: "ISO date", 
+            milestones: ["string"]
+          }
+        ],
+        dependencies: [
+          {
+            taskId: "string",
+            dependsOn: ["string"],
+            type: "blocks|enables|optional"
+          }
+        ],
+        resources: [
+          {
+            name: "string",
+            type: "person|tool|document|budget",
+            allocation: 0,
+            availability: "string"
+          }
+        ]
+      };
 
       const planningResponse = await this.generateStructuredResponse<TaskBreakdown>(
         planningPrompt,
         context,
-        null,
+        responseSchema,
         true,
         false
       );
@@ -125,7 +161,7 @@ Respond with a valid JSON structure as specified in your instructions.`;
       const taskBreakdown = this.validateAndEnhanceTaskBreakdown(planningResponse, projectDescription);
 
       // Step 3: Create Notion database if requested
-      if (createDatabase) {
+      if (shouldCreateDatabase) {
         console.log(`📊 Creating project database in Notion...`);
         
         const database = await createDatabase(
@@ -146,7 +182,6 @@ Respond with a valid JSON structure as specified in your instructions.`;
 
         // Add database info to the result
         (taskBreakdown as any).databaseId = database.id;
-        (taskBreakdown as any).databaseUrl = database.url;
       }
 
       this.addToConversation(context, 'assistant', 
@@ -169,7 +204,7 @@ Respond with a valid JSON structure as specified in your instructions.`;
       deadline?: string;
       teamSize?: number;
       complexity?: 'low' | 'medium' | 'high';
-      createDatabase?: boolean;
+      shouldCreateDatabase?: boolean;
       parentPageId?: string;
     } = {},
     context: AgentContext
@@ -199,15 +234,22 @@ Consider:
 1. Task dependencies and prerequisites
 2. Realistic work schedules (8 hours/day, 5 days/week)
 3. Buffer time for unexpected issues
-4. Logical task sequencing
+4. Logical task sequencing`;
 
-Respond with an array of timeline items in JSON format.`;
+    const timelineSchema = [
+      {
+        taskId: "string",
+        startDate: "ISO date",
+        endDate: "ISO date",
+        milestones: ["string"]
+      }
+    ];
 
     try {
       const timeline = await this.generateStructuredResponse<TimelineItem[]>(
         timelinePrompt,
         context,
-        null,
+        timelineSchema,
         false,
         false
       );
@@ -240,15 +282,25 @@ Provide the optimal task sequence that:
 1. Respects all dependencies
 2. Maximizes parallel work opportunities
 3. Minimizes idle time
-4. Prioritizes critical path items
+4. Prioritizes critical path items`;
 
-Respond with the reordered tasks array in JSON format.`;
+    const taskSchema = [
+      {
+        id: "string",
+        title: "string",
+        description: "string",
+        priority: "Low|Medium|High|Critical",
+        estimatedHours: 0,
+        status: "Not Started",
+        tags: ["string"]
+      }
+    ];
 
     try {
       const optimizedTasks = await this.generateStructuredResponse<Task[]>(
         optimizationPrompt,
         context,
-        null,
+        taskSchema,
         false,
         false
       );

@@ -85,19 +85,60 @@ export abstract class BaseAgent {
     includeWeb: boolean = false
   ): Promise<T> {
     try {
+      // Add explicit JSON formatting instruction
+      const jsonInstruction = `
+
+IMPORTANT: Respond ONLY with valid JSON in the following format. Do not include any text before or after the JSON:
+${JSON.stringify(responseSchema, null, 2)}
+
+Your response must be valid JSON that can be parsed directly.`;
+
       const response = await this.generateResponse(
-        userMessage,
+        userMessage + jsonInstruction,
         context,
         includeRAG,
         includeWeb,
         0.3 // Lower temperature for structured responses
       );
 
-      // Parse the structured response
-      return JSON.parse(response) as T;
+      // Clean the response - remove any non-JSON text
+      let cleanedResponse = response.trim();
+      
+      // Find JSON boundaries
+      const jsonStart = cleanedResponse.indexOf('{');
+      const jsonEnd = cleanedResponse.lastIndexOf('}') + 1;
+      
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        cleanedResponse = cleanedResponse.substring(jsonStart, jsonEnd);
+      }
+
+      // Try to parse the JSON
+      try {
+        return JSON.parse(cleanedResponse) as T;
+      } catch (parseError) {
+        console.error('JSON parse failed, raw response:', response);
+        console.error('Cleaned response:', cleanedResponse);
+        
+        // Fallback: create a basic structure
+        const fallback = {
+          success: false,
+          message: cleanedResponse || response,
+          error: 'Failed to parse structured response'
+        };
+        
+        return fallback as T;
+      }
     } catch (error) {
       console.error(`Error generating structured response for ${this.agentType}:`, error);
-      throw error;
+      
+      // Create error fallback
+      const errorFallback = {
+        success: false,
+        message: 'Error generating response',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+      
+      return errorFallback as T;
     }
   }
 
