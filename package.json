@@ -8,7 +8,8 @@
     "dev": "bun --env-file=.env --watch run index.ts",
     "mcp-server": "bun --env-file=.env run src/mcp-server.ts",
     "mcp-dev": "bun --env-file=.env --watch run src/mcp-server.ts",
-    "test-functions": "bun --env-file=.env run examples/demo.ts"
+    "test-functions": "bun --env-file=.env run examples/demo.ts",
+    "test-agents": "bun --env-file=.env run examples/agent-demo.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -19,6 +20,12 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@notionhq/client": "^3.1.3",
+    "@types/uuid": "^10.0.0",
+    "axios": "^1.9.0",
+    "cheerio": "^1.0.0",
+    "chromadb": "^2.4.6",
+    "openai": "^5.1.0",
+    "uuid": "^11.1.0",
     "zod": "^3.23.8"
   }
 }
