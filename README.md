@@ -243,14 +243,3 @@ Make sure your MCP client is configured to use the correct command:
   }
 }
 ```
-
-**Important**: Make sure the `cwd` points to your project directory containing the `src/` folder and `.env` file.
-
-## 🏆 Benefits of Modular Architecture
-
-- **Maintainability**: Each module has a single responsibility
-- **Testability**: Functions can be tested independently
-- **Reusability**: Import only what you need
-- **Scalability**: Easy to add new features without affecting existing code
-- **Type Safety**: Strong typing across all modules
-- **Flexibility**: Use as library functions or MCP tools
